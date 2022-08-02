@@ -1,0 +1,5 @@
+/* This file is to test if jquery-ui-pa-theme.css can be overwritten or discarded */
+
+.ui-widget {
+  /* outline: 1px solid red; */
+}

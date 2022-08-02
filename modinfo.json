@@ -1,0 +1,16 @@
+{
+  "context": "client",
+  "identifier": "io.burnt.main-menu-optimization",
+  "display_name": "Main Menu Optimization",
+  "description": "Speeds up the main menu by removing and optimizing elements",
+  "author": "burntcustard",
+  "version": "0.1.0",
+  "build": "115872",
+  "date": "2022-07-31",
+  "signature": " ",
+  "forum": "https://",
+  "category": [
+    "titans",
+    "ui"
+  ]
+}

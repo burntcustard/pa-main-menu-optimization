@@ -1,0 +1,681 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <noloc><title>Start Page</title></noloc>
+    <link href="bundle://boot/boot.css" rel="stylesheet" type="text/css" />
+    <link href="start.css" rel="stylesheet" type="text/css" />
+    <link href="coui://ui/main/game/community_mods/css/start.css" rel="stylesheet" type="text/css" />
+
+    <script src="bundle://boot/boot.js" type="text/javascript"></script>
+    <!-- BigInt removed as was only used for createAnonymousSteamAccount() -->
+    <!-- <script src="coui://ui/main/shared/js/thirdparty/BigInt.js" type="text/javascript"></script> -->
+    <!-- Remove tutorial starting because included in start.js now -->
+    <!-- <script src="coui://ui/main/shared/js/tutorial_utility.js" type="text/javascript"></script> -->
+    <script src="coui://ui/main/shared/js/matchmaking_utility.js" type="text/javascript"></script>
+    <script src="coui://ui/main/shared/js/leaderboard_utility.js" type="text/javascript"></script>
+    <script src="coui://ui/main/shared/js/commander_utility.js" type="text/javascript"></script>
+
+    <script src="coui://ui/main/shared/js/save_game_utility.js" type="text/javascript"></script>
+    <script src="coui://ui/main/shared/js/playfab.js" type="text/javascript"></script>
+    <script src="coui://ui/main/shared/js/ui_media_utility.js" type="text/javascript"></script>
+
+    <script src="coui://ui/main/game/community_mods/community-mods-manager.js"></script>
+    <script src="coui://ui/main/game/community_mods/states/start.js" type="text/javascript"></script>
+    <script src="start.js" type="text/javascript" defer></script>
+
+</head>
+<body data-bind="css: { titans: api.content.usingTitans() }, click: hideSubMenus" >
+
+    <div id="background"></div>
+    <div id="content-wrapper">
+        <div id="start_column">
+                <div class="main_bar">
+                    <div id="menu" style="display: none" data-bind="visible: true, css: { upgrade: showBuyTitans}">
+                        <div id="menu_cont">
+                            <div id="user_info">
+                                <div id="user-details">
+                                    <div class="username" id="player-display-name" data-bind="text: displayName, style: { opacity: displayName() ? '1' : '0' }">placeholder</div>
+                                </div>
+                                <div id="login" style="display: none" data-bind="visible: showingSignIn">
+                                    <form data-bind="submit: ubernetLoginIn" style="width: 100%; padding-top: 10px;">
+
+                                        <!-- ko if:  $root.hasEverSignedIn() || $root.showFirstTimeSignIn() -->
+                                        <div style="margin: 0px 0px 8px 0px;">
+                                            <loc>Sign in with your PA account</loc>
+                                        </div>
+                                        <div class="input_label">
+                                            <loc>Username</loc>
+                                        </div>
+                                        <div>
+                                            <input type="text" class="input_text" data-bind="value: uberName" />
+                                        </div>
+                                        <div class="input_label">
+                                            <loc>Password</loc>
+                                        </div>
+                                        <div>
+                                            <input class="input_text" type="password" data-bind="value: password" />
+                                        </div>
+                                        <div>
+                                            <button id="signin" type="submit" data-bind="click_sound: 'default', rollover_sound: 'default', click: ubernetLoginIn">
+                                                <loc>Sign in</loc>
+                                            </button>
+                                        </div>
+                                        <!-- /ko -->
+
+                                        <!-- ko ifnot: $root.hasEverSignedIn() || $root.showFirstTimeSignIn() -->
+                                        <div style="display: flex; flex-wrap: wrap; font-family:'Sansation';">
+                                            <div class="btn_std_ix view_intro" style="flex-shrink: 0; margin-right: 3px;" data-bind="click: startFirstSignIn, click_sound: 'default', rollover_sound: 'default'">
+                                                <loc>Sign In</loc>
+                                            </div>
+                                            <span style="color: rgba(255,255,255,.25);"><noloc>|</noloc></span>
+                                            <div class="btn_std_ix view_intro" style="flex-shrink: 0;" data-bind="click: openAccountCreationPopup, click_sound: 'default', rollover_sound: 'default'">
+                                                <loc>Create Account</loc>
+                                            </div>
+                                        </div>
+                                        <!-- /ko -->
+                                    </form>
+                                </div>
+                            </div>
+                            <div id="navigation_panel">
+                                <div id="navigation_items">
+                                    <div class="nav_cascade_group">
+                                        <div id="nav-single-player" class="btn_std_ix nav_item nav_item_text" data-bind="click: toggleSinglePlayerMenu, click_sound: 'default', rollover_sound: 'default', css: { nav_item_text_disabled: !allowNewOrJoinGame(), btn_std_ix_active: showSinglePlayerMenu }">
+                                            <loc>Single Player</loc>
+                                            <div class="glyphicon glyphicon-chevron-right nav_carat" aria-hidden="true"></div>
+                                        </div>
+                                        <div class="nav_sub_item" style="display: none" data-bind="visible: showSinglePlayerMenu">
+                                            <!-- ko if: $root.mostRecentGame -->
+                                            <div id="nav-resume" class="btn_std_ix nav_item nav_item_text truncate" data-bind="click: SaveGameUtility.loadMostRecentGame, click_sound: 'default', rollover_sound: 'default'">
+                                                <div class="sub_label">
+                                                    <loc>Resume last saved:</loc>
+                                                </div>
+                                                <!-- ko with: $root.mostRecentGame -->
+                                                <div class="truncate" data-bind="text: name"></div>
+                                                <!-- /ko -->
+                                            </div>
+                                            <!-- /ko -->
+                                            <div id="nav-gw" class="btn_std_ix nav_item nav_item_text" data-bind="click: navToGalacticWar, click_sound: 'default', rollover_sound: 'default'">
+                                                <loc>Galactic War</loc>
+                                            </div>
+                                            <div id="nav-ai-skirmish" class="btn_std_ix nav_item nav_item_text" data-bind="click: navToAISkirmish, click_sound: 'default', rollover_sound: 'default'">
+                                                <loc>AI Skirmish</loc>
+                                            </div>
+                                            <div id="nav-saved-games" class="btn_std_ix nav_item nav_item_text" style="display: flex;" data-bind="click: navToLoadSavedGame, click_sound: 'default', rollover_sound: 'default'">
+                                                <div>
+                                                    <loc>Saved Games</loc>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="nav_cascade_group">
+                                        <div id="nav-multiplayer" class="nav_item nav_item_text btn_std_ix" data-bind="click: toggleMultiplayerMenu, click_sound: 'default', rollover_sound: 'default', css: { nav_item_text_disabled: !allowNewOrJoinGame(), btn_std_ix_active: showMultiplayerMenu }">
+                                            <loc>Multiplayer</loc>
+                                            <div class="glyphicon glyphicon-chevron-right nav_carat" aria-hidden="true"></div>
+                                        </div>
+                                        <div id="nav-multiplayer-custom" class="nav_sub_item" style="display: none" data-bind="visible: showMultiplayerMenu">
+                                            <div class="nav_item nav_item nav_item_text btn_std_ix" data-bind="click: navToServerBrowser, click_sound: 'default', rollover_sound: 'default'">
+                                                <loc>Custom</loc>
+                                            </div>
+                                            <div id="nav-ranked" class="nav_item nav_item nav_item_text btn_std_ix" data-bind="visible: showRanked, click: startMatchMaking, click_sound: 'default', rollover_sound: 'default', css: { nav_item_text_disabled: disableRanked }">
+                                                <loc>1v1 RANKED MATCH</loc>
+                                            </div>
+                                            <div id="nav-leaderboards" class="nav_item nav_item nav_item_text btn_std_ix" data-bind="click: navToLeaderBoard, click_sound: 'default', rollover_sound: 'default'">
+                                                <loc>Leaderboards</loc>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="nav_reconnect" class="nav_item nav_item_text btn_std_ix" data-bind="visible: canDirectReconnect, click: directReconnect, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Reconnect</loc>
+                                    </div>
+                                    <div id="nav-replays" class="nav_item nav_item_text btn_std_ix" data-bind="click: navToReplayBrowser, click_sound: 'default', rollover_sound: 'default', css: { nav_item_text_disabled: disallowUbernetActions }">
+                                        <loc>Replays</loc>
+                                    </div>
+                                    <div id="nav-player-guide" class="nav_item nav_item_text btn_std_ix" data-bind="click: navToGuide, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Player Guide</loc>
+                                    </div>
+                                    <div id="nav-tutorial" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.startTutorialOrShowPopup, click_sound: 'default', rollover_sound: 'default', visible: api.content.usingTitans">
+                                        <loc>Tutorial</loc>
+                                    </div>
+                                    <div id="nav-guides" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.openOfficialGuides, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Official Guides</loc>
+                                        <div class="external-link">&#xe164;</div>
+                                    </div>
+                                    <div id="nav-discord" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.openOfficialDiscord, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Official Discord</loc>
+                                        <div class="external-link">&#xe164;</div>
+                                    </div>
+                                    <div id="nav-support" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.openOfficialSupport, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Official Support</loc>
+                                        <div class="external-link">&#xe164;</div>
+                                    </div>
+                                    <div id="nav-system-designer" class="nav_item nav_item_text btn_std_ix" data-bind="click: navToEditPlanet, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>System Designer</loc>
+                                    </div>
+                                    <div id="nav_settings" class="nav_item nav_item_text btn_std_ix" data-bind="click: navToSettings, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Settings</loc>
+                                    </div>
+                                    <div id="nav-armory" class="nav_item nav_item_text btn_std_ix" data-bind="click: navToArmory, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Armory</loc>
+                                    </div>
+                                    <div id="nav_quit" class="nav_item nav_item_text btn_std_ix" data-bind="click: exit, click_sound: 'default', rollover_sound: 'default'">
+                                        <loc>Quit</loc>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="footer">
+                        <div id="copyright">
+                            <noloc>Copyright © 2012-2021 <br/>Planetary Annihilation Inc. <br/>All rights reserved.</noloc>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div id="content" style="display: none" data-bind="visible: true">
+            <div id="logo-background"></div>
+            <div id="build-info">
+                <div data-bind="text: window.gVersion"></div>
+                <div data-bind="visible: window.gVersion != window.gBuild, text: window.gBuild"></div>
+            </div>
+
+            <div id="content-main">
+
+                <div id="messages">
+
+                    <div id="warnings">
+                        <div class="message-warning" style="display: none;" data-bind="visible: showOfflineWarning">
+                            <!-- ko if: $root.localServerDisabledInSettings() -->
+                            <div class="title">
+                                <loc>Gameplay Disabled</loc>
+                            </div>
+                            <div>
+                                <loc>Please sign in to play on PA servers, or in [strong]Settings[/strong], manually set local server to [strong]On[/strong].</loc>
+                            </div>
+                            <!-- /ko -->
+
+                            <!-- ko ifnot: $root.localServerDisabledInSettings() -->
+                            <div class="title">
+                                <loc>Gameplay Unavailable</loc>
+                            </div>
+                            <div>
+                                <loc>Your system does not meet the requirements for offline play. Please sign in to play on PA servers, or in [strong]Settings[/strong], manually set local server to [strong]On[/strong].</loc>
+                            </div>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+
+                    <div id="events" data-bind="foreach: activeEvents">
+                        <div class="message-container btn_std_ix" data-bind="click: $root.eventClicked, attr: { 'data-link': link }, click_sound: 'default', rollover_sound: 'default'">
+                            <img class="message-icon" data-bind="visible: icon, attr: { src: icon }"/>
+                            <div class="message-block">
+                                <div class="message-text" data-bind="text: text"> </div>
+                                <div class="message-status-block" data-bind="visible:status">
+                                    <div class="message-status-text" data-bind="text: status"></div> <div class="message-status-timer" data-bind="visible: timer, text: timer"></div></div><div class="external-link" data-bind="visible: link">&#xe164;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <img id="commander-img"data-bind="visible: true, attr: { src: commanderImage }, css_when_loaded: 'loaded', click: navToArmory, click_sound: 'default', rollover_sound: 'default'" />
+            </div>
+
+            <div id="content-right">
+                <div id="tabs-content">
+                    <div id="news" class="tab-content-wrapper" data-bind="visible: showUpdate">
+                        <div class="news-post" data-bind="click: openNewsUrl, clickBubble: false, click_sound: 'default', rollover_sound: 'default'">
+                            <div class="link news-title">
+                                <div data-bind="text: updateTitle"></div>
+                                <div class="external-link">&#xe164;</div>
+                            </div>
+                            <div class="news-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabs">
+                    <div id="news-button" class="tab btn_std_ix truncate" data-placement="top" data-bind="visible: newsTitle, text: newsTitle, click: toggleNewsTab, click_sound: 'default', rollover_sound: 'default', css: { 'btn_std_ix_active': $root.showingNewsTab }, tooltip: '!LOC:Latest News'">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="div_tutorial_popup" style="display: none" data-bind="visible: showTutorialPopup">
+        <div class="tutorial_dialog">
+            <div class="header">
+                <div class="msg"><loc>Before you jump in...</loc></div>
+                <div class="btn_win btn_win_close btn_header_close" data-bind="click: function () { $root.showTutorialPopup(false); }"></div>
+            </div>
+            <div class="image">
+                <img src="img/img_tutorial.png" />
+            </div>
+            <div class="text">
+                <div class="headline"><loc>Try the TITANS Tutorial</loc></div>
+                <div class="tagline"><loc>Learn the basics. Command a Titan. Smash a planet.</loc></div>
+                <div class="div_commit">
+                    <button class="btn_play_tutorial" type="submit" data-bind="click: function () { $root.startTutorial(); }"><loc>Play Tutorial</loc></button>
+                    <div class="btn_dismiss_popup btn_std_ix" data-bind="click: function () { $root.showTutorialPopup(false); }"><loc>No thanks. I got this.</loc></div>
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+
+    <div class="div_tutorial_popup" style="display: none" data-bind="visible: showTutorialContinuePopup">
+        <div class="tutorial_dialog">
+            <div class="header">
+                <div class="btn_win btn_win_close btn_header_close" data-bind="click: function () { $root.showTutorialContinuePopup(false); }"></div>
+            </div>
+            <div class="text">
+                <div class="headline"><loc>Looks like you have a tutorial already in progress.</loc></div>
+                <div class="tagline"></div>
+                <div class="div_commit">
+                    <button class="btn_continue_tutorial" data-bind="click: SaveGameUtility.loadMostRecentGame"><loc>Continue Tutorial</loc></button>
+                    <button class="btn_restart_tutorial" data-bind="click: function () { $root.startTutorial(); }"><loc>Restart From Beginning</loc></button>
+                    <div class="btn_dismiss_popup btn_std_ix" data-bind="click: function () { $root.showTutorialContinuePopup(false); }"><loc>Cancel</loc></div>
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+
+    <div class="div_tutorial_popup" style="display: none" data-bind="visible: oneTimePopups.titans_gift_on_steam.display(), with: oneTimePopups.titans_gift_on_steam">
+        <div class="tutorial_dialog debut">
+            <div class="header">
+                <div class="msg"></div>
+                <div class="btn_win btn_win_close btn_header_close" data-bind="click: dismiss"></div>
+            </div>
+            <div class="image">
+                <img src="img/img_debut02.png" />
+                <div class="headline"><loc>They're here for you.</loc></div>
+            </div>
+            <div class="text">
+                <div class="headline"><loc>The TITANS have arrived.</loc></div>
+                <div class="tagline debut"><loc>As thanks for your continued support, you have been given the new TITANS expansion for free!</loc></div>
+                <div class="tagline debut"><loc>You'll find it waiting in your Steam library right next to Planetary Annihilation!</loc></div>
+                <div class="div_commit">
+                    <button class="btn_play_tutorial" type="submit" data-bind="click: $root.launchTitansAndExit"><loc>QUIT & INSTALL TITANS</loc></button>
+                    <button class="btn_play_tutorial" type="submit"  data-bind="click: dismiss"><loc>OKAY</loc></button>
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+
+    <div class="div_tutorial_popup" style="display: none" data-bind="visible: showRedirectToNewAppid">
+        <div class="tutorial_dialog debut">
+            <div class="header">
+                <div class="msg"></div>
+                <div class="btn_win btn_win_close btn_header_close" data-bind="click: function() { showRedirectToNewAppid(false); }"></div>
+            </div>
+            <div class="image">
+                <img src="img/img_debut02.png" />
+                <div class="headline"><loc>They're here for you.</loc></div>
+            </div>
+            <div class="text">
+                <div class="headline"><loc>The TITANS have arrived.</loc></div>
+                <div class="tagline debut"><loc>Looks like you're running Classic PA from your Steam Library, instead of TITANS.</loc></div>
+                <div class="tagline debut"><loc>If you want to play Classic PA, it's recommended you run TITANS and simply change your Active Expansion in the gameplay settings.</loc></div>
+                <div class="div_commit">
+                    <button class="btn_play_tutorial" type="submit" data-bind="click: $root.launchTitansAndExit"><loc>QUIT & LAUNCH TITANS</loc></button>
+                    <button class="btn_play_tutorial" type="submit"  data-bind="click: function() { showRedirectToNewAppid(false); }"><loc>OKAY</loc></button>
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+
+    <div class="div_tutorial_popup" style="display: none" data-bind="visible: oneTimePopups.titans_gift.display(), with: oneTimePopups.titans_gift">
+        <div class="tutorial_dialog debut">
+            <div class="header">
+                <div class="msg"></div>
+                <div class="btn_win btn_win_close btn_header_close" data-bind="click: dismiss"></div>
+            </div>
+            <div class="image">
+                <img src="img/img_debut02.png" />
+                <div class="headline"><loc>They're here for you.</loc></div>
+            </div>
+            <div class="text">
+                <div class="headline"><loc>The TITANS have arrived.</loc></div>
+                <div class="tagline debut"><loc>As thanks for your continued support, you have been given the new TITANS expansion for free!</loc></div>
+                <div class="tagline debut"><loc>Please enjoy all the new units, new worlds, and new ways to annihilate everything!</loc></div>
+                <div class="div_commit">
+                    <button class="btn_play_tutorial" type="submit"  data-bind="click: dismiss"><loc>OKAY</loc></button>
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+
+    <div class="div_tutorial_popup" style="display: none" data-bind="visible: showCreateUbernetAccountPopup">
+        <div class="tutorial_dialog debut">
+            <div class="header">
+                <div class="msg"></div>
+                <div class="btn_win btn_win_close btn_header_close" data-bind="click: closeAccountCreationPopup"></div>
+            </div>
+             <!-- ko ifnot: accountCreationPopup.accountAlreadyExisted -->
+            <div class="image" style="height: 275px; overflow: hidden; position: relative;">
+                <img style="position: absolute;" src="img/img_debut02.png" />
+                <div class="headline"><loc>Battle Everyone.</loc></div>
+            </div>
+            <!-- /ko -->
+            <div class="text div_account_creation">
+                <!-- ko ifnot: accountCreationPopup.accountAuthorized -->
+                <form>
+                    <div class="headline" style="padding: 0;">
+                        <!-- ko ifnot: accountCreationPopup.accountAlreadyExisted -->
+                        <loc>Create an account to play online.</loc>
+                        <!-- /ko -->
+
+                        <!-- ko if: accountCreationPopup.accountAlreadyExisted -->
+                        <loc>Please enter an activation key.</loc>
+                        <!-- /ko -->
+                    </div>
+
+                    <!-- ko ifnot: accountCreationPopup.accountAlreadyExisted -->
+                    <div class="tagline debut" style="max-width: 720px; margin: 0 0 20px;">
+                        <loc>Play online for matchmaking, leaderboards, & dedicated servers.</loc>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: accountCreationPopup.accountAlreadyExisted -->
+                    <div class="tagline debut" style="max-width: 720px; margin: 0 0 20px;">
+                        <loc>An activation key is required to play online.</loc>
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko ifnot: accountCreationPopup.accountAlreadyExisted -->
+                    <!-- ko ifnot: accountCreationPopup.accountCreated -->
+                    <div class="tagline debut">
+                        <label><loc>Username</loc></label><input type="text" data-bind="textInput: accountCreationPopup.username"/>
+                    </div>
+                    <div class="warning" data-bind="visible: accountCreationPopup.usernameError, text: accountCreationPopup.usernameError">
+                    </div>
+
+                    <div class="tagline debut">
+                        <label><loc>Email</loc></label><input type="text" data-bind="textInput: accountCreationPopup.email" />
+                    </div>
+                    <div class="warning" data-bind="visible: accountCreationPopup.emailError, text: accountCreationPopup.emailError">
+                    </div>
+                    <div class="tagline debut">
+                        <label><loc>Password</loc></label><input type="password" data-bind="textInput: accountCreationPopup.password" />
+                    </div>
+                    <div class="warning" data-bind="visible: accountCreationPopup.passwordError, text: accountCreationPopup.passwordError">
+                    </div>
+                    <div class="tagline debut">
+                        <label><loc>Confirm Password</loc></label><input type="password" data-bind="textInput: accountCreationPopup.confirmPassword" />
+                    </div>
+                     <div class="warning" data-bind="visible: accountCreationPopup.passwordConfirmError, text: accountCreationPopup.passwordConfirmError">
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: accountCreationPopup.accountCreated -->
+                    <div class="tagline debut">
+                        <label><loc>Username</loc></label><input type="text" disabled data-bind="textInput: accountCreationPopup.username"/>
+                    </div>
+                    <div class="tagline debut">
+                        <label><loc>Email</loc></label><input type="text" disabled data-bind="textInput: accountCreationPopup.email" />
+                    </div>
+                    <div class="tagline debut">
+                        <label><loc>Password</loc></label><input type="password" disabled data-bind="textInput: accountCreationPopup.password" />
+                    </div>
+                    <div class="tagline debut">
+                        <label><loc>Confirm Password</loc></label><input type="password" disabled data-bind="textInput: accountCreationPopup.confirmPassword" />
+                    </div>
+                    <!-- /ko -->
+                    <!-- /ko -->
+
+                    <!-- ko if: accountCreationPopup.accountAlreadyExisted -->
+                    <div class="tagline debut">
+                        <label><loc>Username</loc></label><input type="text" disabled data-bind="textInput: accountCreationPopup.username"/>
+                    </div>
+                    <!-- /ko -->
+
+                    <div class="tagline debut" style="margin-top: 12px;">
+                        <label><loc>Activation Key</loc></label><input type="text" data-bind="textInput: accountCreationPopup.key" />
+                    </div>
+
+                     <div class="warning" data-bind="visible: accountCreationPopup.playfabError, text: accountCreationPopup.playfabError">
+                    </div>
+
+                    <div class="div_commit">
+
+                        <!-- ko if: accountCreationPopup.inputIsValid -->
+                        <button class="btn_play_tutorial" type="submit" data-bind="click: accountCreationPopup.next">
+
+                            <!-- ko ifnot: accountCreationPopup.accountAlreadyExisted -->
+                            <loc>Create Account</loc>
+                            <!-- /ko -->
+
+                            <!-- ko if: accountCreationPopup.accountAlreadyExisted -->
+                            <loc>Activate</loc>
+                            <!-- /ko -->
+
+                        </button>
+                        <!-- /ko -->
+
+                        <!-- ko ifnot: accountCreationPopup.inputIsValid -->
+                        <button class="btn_play_tutorial disabled" disabled type="submit" >
+
+                            <!-- ko ifnot: accountCreationPopup.accountCreated -->
+                            <loc>Create Account</loc>
+                            <!-- /ko -->
+
+                            <!-- ko if: accountCreationPopup.accountCreated -->
+                            <loc>Activate</loc>
+                            <!-- /ko -->
+
+                        </button>
+                        <!-- /ko -->
+
+                        <div class="btn_dismiss_popup btn_std_ix" data-bind="click: closeAccountCreationPopup">
+                            <loc>Not right now</loc>
+                        </div>
+                    </div>
+                </form>
+                <!-- /ko -->
+
+                <!-- ko if: accountCreationPopup.accountAuthorized -->
+
+                <div class="headline">
+                    <loc>Account created successfully.</loc>
+                </div>
+                <div class="div_commit" style="margin-top: 12px;">
+                    <button class="btn_play_tutorial" type="submit" data-bind="click: closeAccountCreationPopup">
+                        <loc>OK</loc>
+                    </button>
+                </div>
+                 <!-- /ko -->
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+
+    <!-- DIALOGS -->
+
+        <!-- SHOW CONNECTING -->
+        <div id="connecting" style="display: none" data-bind="visible: showConnecting">
+            <div class="wrapper">
+                <img class="working std" style="margin: 0px 8px 0px 0px;" src="coui://ui/main/shared/img/working.svg" />
+                <div id="msg_progress" class="msg_progress_text">
+                    <loc>Connecting to PA</loc>
+                </div>
+            </div>
+        </div>
+
+        <!-- ERROR -->
+        <div id="error" style="display: none" data-bind="visible: showError">
+            <div class="primary_msg" style="margin: 0px 0px 10px 0px;">
+                <loc>Unable to Sign In</loc>
+            </div>
+            <div class="secondary_msg" id="errorText">
+                <noloc>set by code</noloc>
+            </div>
+        </div>
+
+        <!-- UBER RECONNECT -->
+        <div id="reconnectDlg" style="display: none" data-bind="visible: showReconnect">
+            <div class="primary_msg dialog">
+                <loc>You are already assigned to a game.</loc>
+            </div>
+        </div>
+
+        <!-- BUILD NUMBER -->
+        <div class="div_build_number_dialog" style="display: none" data-bind="visible: showNewBuild">
+            <div class="primary_msg dialog">
+                <loc>New Build Available:</loc>
+                <!--ko text: ubernetBuildVersion-->
+                <!--/ko -->
+            </div>
+            <div class="body_light">
+                <br />
+                <loc>You need a new client to play the game. Steam users may need to restart Steam to get the new client.</loc>
+            </div>
+        </div>
+
+        <!-- REGION SELECTION -->
+        <div class="div_body_cont" id="regionDlg" style="display: none" data-bind="visible: true">
+            <!-- ko if: hasUberNetRegion -->
+            <div style="width: 450px;">
+                <!-- ko ifnot: uberNetRegion -->
+                <div class="primary_msg dialog">
+                    <loc>Please choose a default region.</loc>
+                </div>
+                <div class="secondary_msg">
+                    <loc>You can change the region later in the settings menu.</loc>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: uberNetRegion -->
+                <div class="primary_msg dialog">
+                    <loc>Your default region is currently unavailable.  Please choose a different region.</loc>
+                </div>
+                <div class="secondary_msg">
+                    <loc>You can change the region later in the settings menu.</loc>
+                </div>
+                <!-- /ko -->
+                <div id="uberNetRegion">
+                    <select class="selectpicker form-control"
+                        data-bind="options: uberNetRegions, optionsText: function (item) { return item.Name; }, optionsValue: function (item) { return item.Name; }, selectPicker: selectedUberNetRegion">
+                    </select>
+                </div>
+            </div>
+            <!-- /ko -->
+            <!-- ko ifnot: hasUberNetRegion -->
+            <div class="primary_msg dialog">
+                <loc>There are no regions available for this build version.</loc>
+            </div>
+            <div class="secondary_msg">
+                <loc>Please try again later.  If this error persists, please contact support and check the forums.</loc>
+            </div>
+            <!-- /ko -->
+        </div>
+
+        <!-- OFFLINE INITIALLY DISABLED MODAL -->
+        <div class="modal fade" id="offlineInitiallyDisabled" tabindex="-1" role="dialog" aria-labelledby="offlineInitiallyDisabledLabel" aria-hidden="true" data-show="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="btn_win btn_win_close" type="button" data-dismiss="modal" aria-hidden="true"></div>
+                    <div class="modal-header">
+                        <div class="modal-title warning" id="offlineInitiallyDisabledLabel">
+                            <loc>Offline Play Disabled</loc>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <loc>Your machine does not meet the recommended system requirements for offline play &mdash; for offline mode we recommend at least 8 gigabytes of RAM and a Quad Core processor.</loc>
+                        </p>
+                        <p>
+                            <loc>If you ignore this recommendation by enabling offline play, you may experience degraded performance.</loc>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn_std" data-bind="click: openOfflineUnavailableMoreInfo, click_sound: 'default', rollover_sound: 'default'">
+                            <loc>More Info</loc>
+                        </button>
+                        <button class="btn_std" data-bind="click: enableOfflinePlay, click_sound: 'default', rollover_sound: 'default'">
+                            <loc>Enable Offline Play</loc>
+                        </button>
+                        <button class="btn_std" data-dismiss="modal" data-bind="click_sound: 'default', rollover_sound: 'default'">
+                            <loc>Close</loc>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+
+        <!-- GRAPHICS DRIVER CRASH MODAL -->
+        <div class="modal fade" id="graphicsDriverCrash" tabindex="-1" role="dialog" aria-labelledby="graphicsDriverCrashLabel" aria-hidden="true" data-show="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="btn_win btn_win_close" type="button" data-dismiss="modal" aria-hidden="true"></div>
+                    <div class="modal-header">
+                        <div class="modal-title warning" id="graphicsDriverCrashLabel">
+                            <loc>Possible Graphics Driver Crash Detected</loc>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <loc>It appears that Planetary Annihilation crashed the last time you played it. This crash might be due to a problem in the installed graphics drivers.</loc>
+                        </p>
+                        <p data-bind="vars: { vendor_name: graphicsVendorDescription }">
+                            <loc>Often these types of crashes can be resolved by making sure you have the latest graphics driver from __vendor_name__ &mdash; and we [strong]strongly recommend[/strong] that you visit their driver website to download and install the latest version.</loc>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn_std" data-bind="click: openGraphicsVendorWebsite, click_sound: 'default', rollover_sound: 'default', vars: { vendor_name: graphicsVendorDescription }">
+                            <loc>Open __vendor_name__'s Driver Website</loc>
+                        </button>
+                        <button class="btn_std" data-dismiss="modal" data-bind="click_sound: 'default', rollover_sound: 'default'">
+                            <loc>Dismiss</loc>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+
+        <!-- STEAM OVERLAY DISABLED MODAL -->
+        <div class="modal fade" id="steamOverlayDisabled" tabindex="-1" role="dialog" aria-labelledby="steamOverlayDisabledLabel" aria-hidden="true" data-show="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="btn_win btn_win_close" type="button" data-dismiss="modal" aria-hidden="true"></div>
+                    <div class="modal-header">
+                        <div class="modal-title warning" id="steamOverlayDisabledLabel">
+                            <loc>Steam Overlay Disabled</loc>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <loc>It appears that you have turned off the Steam Overlay, and we are unable to initiate your purchase without it.</loc>
+                        </p>
+                        <p>
+                            <loc>Please exit the game, find it in your Steam library, right click it, select Properties, and make sure that "Enable the Steam Overlay while in-game" is checked. After doing so, start the game and try again.</loc>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn_std" data-dismiss="modal" data-bind="click_sound: 'default', rollover_sound: 'default'">
+                            <loc>Dismiss</loc>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+</body>
+</html>
