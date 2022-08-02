@@ -1,24 +1,5 @@
 engine.call('game.debug.menuDocumentReady');
 
-function OneTimePopup(name, filter) {
-    var self = this;
-
-    var showPopup = ko.observable(true).extend({ local: 'do_show_notice_' + name + '_popup' });
-
-    self.display = ko.observable(false);
-    self.dismiss = function () {
-        self.display(false);
-    }
-
-    self.setup = function() {
-        if (showPopup() && filter())
-        {
-            self.display(true);
-            showPopup(false);
-        }
-    };
-};
-
 function AccountCreationPopup() {
     var self = this;
 
@@ -216,10 +197,6 @@ function LoginViewModel() {
     self.doShowTutorialPopup = ko.observable(true).extend({ local: 'do_show_tutorial_popup' });
 
     self.maybeShowTutorialPopup = function () {
-
-        if (!api.content.usingTitans())
-            return false;
-
         if (self.doShowTutorialPopup()) {
             self.showTutorialPopup(true);
             self.doShowTutorialPopup(false);
@@ -251,12 +228,6 @@ function LoginViewModel() {
         } else {
             self.showTutorialContinuePopup(true);
         }
-    };
-
-    self.showRedirectToNewAppid = ko.observable(false);
-    self.oneTimePopups = {
-        titans_gift:          new OneTimePopup('titans_gift',   function() { return api.content.titansWasKSGift() && (!api.steam.hasClient() || api.content.usingTitans()); }),
-        titans_gift_on_steam: new OneTimePopup('titans_gift',   function() { return api.content.titansWasKSGift() && api.steam.hasClient() && !api.content.usingTitans(); }),
     };
 
     self.showCreateUbernetAccountPopup = ko.observable(false);
@@ -719,10 +690,6 @@ function LoginViewModel() {
         {
             api.content.catalogUpdated();
 
-            _.forOwn(self.oneTimePopups, function(popup, name) { popup.setup(); });
-            if (api.steam.hasClient() && !_.some(self.oneTimePopups, function(popup) { return popup.display(); }))
-                self.showRedirectToNewAppid(!api.content.ownsTitans() && api.steam.accountOwnsTitans());
-
             catalogDeferred.resolve();
 
             self.loadCommanderImages();
@@ -741,7 +708,6 @@ function LoginViewModel() {
         connectionCompleteDeferred.always(function() {
             if (self.showConnecting()) {
                 self.showConnecting(false);
-                $("#connecting").dialog("close");
             }
         });
     };
@@ -908,10 +874,7 @@ function LoginViewModel() {
     }
 
     self.ubernetLoginIn = function () {
-
         self.showConnecting(true);
-        $("#msg_progress").text(loc("!LOC:Connecting to PA"));
-        $("#connecting").dialog('open');
 
         if (self.hasCmdLineTicket())
             self.authenticateWithCmdLineTicket();
@@ -1031,11 +994,6 @@ function LoginViewModel() {
     };
 
     self.getUbernetBuildNumber = self.fetchStableBuild;
-
-    self.showRanked = ko.computed( function()
-    {
-        return api.content.usingTitans();
-    });
 
     self.disableRanked = ko.computed( function()
     {
@@ -1511,27 +1469,6 @@ function LoginViewModel() {
         return !self.useLocalServer();
     });
 
-    self.squelchTitansUpsellPage = ko.observable(false).extend({ local: 'squelch_titans_upsell' });
-
-    self.showBuyTitans = ko.computed(function ()
-    {
-        // if (!self.allowMicroTransactions())
-        //     return false;
-
-        // if (self.squelchTitansUpsellPage())
-        //     return false;
-
-        return !api.content.ownsTitans() && !api.steam.accountOwnsTitans();
-    });
-
-    self.launchTitansAndExit = function()
-    {
-        api.steam.launchContent('PAExpansion1').then(function()
-        {
-            engine.call('exit');
-        });
-    };
-
     self.physicalCores = ko.observable(0).extend({ session: 'physical_cores' });
     self.physicalMemory = ko.observable(0).extend({ session: 'physical_memory' });
 
@@ -1723,173 +1660,6 @@ console.log(JSON.stringify(self.reconnectToGameInfo()));
         };
         window.location.href = 'coui://ui/main/game/connect_to_game/connect_to_game.html?' + $.param(params);
     };
-
-    self.promotions = {};
-
-    self.events = ko.observable({}).extend({session: 'event_data'});
-
-    self.fetchEvents = function()
-    {
-        $.getJSON('https://services.planetaryannihilation.net/messages/', function(data)
-        {
-            if (!_.isArray(data))
-                return;
-
-            _.forEach(data, function(event)
-            {
-                if (_.isString(event.start))
-                    event.start = new Date(event.start).getTime();
-
-                if (_.isString(event.finish))
-                    event.finish = new Date(event.finish).getTime();
-            })
-
-            self.events(data);
-        });
-    }
-
-    self.fetchEventsTimer = setInterval( self.fetchEvents, 60 * 1000 );
-
-    self.fetchEvents();
-
-    self.activeEvents = ko.observableArray([]);
-
-    self.updateActiveEvents = function()
-    {
-        var events = self.events() || [];
-
-        var messages = [];
-
-        var titans = api.content.ownsTitans();
-
-        _.forEach(events, function(event, key)
-        {
-            // apply any classic overrides
-
-            if ( ! titans && event.classic )
-                event = _.assign( {}, event, event.classic );
-
-            var from = event.from;
-            var showStart = event.showStart;
-
-            var start = event.start;
-            var finish = event.finish;
-
-            var show = titans ? event.showTitans : event.showClassic;
-
-            var now = Date.now();
-
-            var activeStart = start - event.startingSeconds * 1000;
-
-            var done = ! show || (finish && now > finish);
-
-            var earlyExit = done || ( from && now < from ) || ( ! showStart && now < activeStart );
-
-            if ( earlyExit )
-                return;
-
-            var delta = false;
-            var status = false;
-            var timer = false;
-
-            var link = event.link;
-
-            var active = now >= activeStart;
-
-            if (active)
-            {
-                if (event.active)
-                    event = _.assign( {}, event, event.active );
-
-                if (event.showLive && event.stream)
-                {
-                    if (now < start)
-                        delta = start - now;
-
-                    if (event.stream)
-                        link = event.stream;
-
-                    status = loc('LIVE ');
-                }
-                else if (event.showEnd && finish)
-                {
-                    delta = finish - now;
-                    status = loc('!LOC:ending in') + ' ';
-                }
-            }
-            else
-            {
-                delta = start - now;
-                status = loc('!LOC:starting in') + ' ';
-            }
-
-            var text = loc(event.text);
-            var icon = event.icon;
-            var streamIcon = event.streamIcon;
-            var stream = event.stream;
-            var streamTooltip = loc(event.streamTooltip) || '';
-
-            if (delta)
-            {
-                var seconds = delta / 1000;
-
-                var days = Math.floor( seconds / 86400 );
-
-                var hours = Math.floor( seconds / 3600 );
-
-                if ( hours < 10 )
-                    hours = '0' + hours;
-
-                var minutes = Math.floor( seconds / 60 % 60 );
-
-                if ( minutes < 10 )
-                    minutes = '0' + minutes;
-
-                var seconds = Math.floor( seconds % 60 );
-
-                if ( seconds < 10 )
-                    seconds = '0' + seconds;
-
-                timer  = days > 1 ? days + ' ' + loc('!LOC:days') : ( hours > 0 ? hours + ':' : '') + minutes + ':' + seconds;
-            }
-
-            var message =
-            {
-                text: text,
-                link: link,
-                status: status,
-                timer: timer,
-                icon: icon,
-                streamIcon: streamIcon,
-                stream: stream,
-                streamTooltip: streamTooltip
-            }
-
-            messages.push(message);
-        });
-
-        self.activeEvents(messages);
-    }
-
-    self.updateActiveEventsTimer = setInterval( self.updateActiveEvents, 1000 );
-
-    self.updateActiveEvents();
-
-    self.eventClicked = function(data, event)
-    {
-        var link = data.link;
-
-        if ( link )
-            engine.call( 'web.launchPage', link );
-    }
-
-    self.eventStreamClicked = function(data)
-    {
-        var link = data.stream;
-
-        if ( link )
-            engine.call( 'web.launchPage', link );
-    }
 }
 
 model = new LoginViewModel();
@@ -1925,24 +1695,6 @@ handlers.gog_auth_complete = function (payload) {
     if (!model.hasEverSignedIn())
         model.openAccountCreationPopup();
 }
-
-//initalize dialogs
-$(".div_credits_dialog").dialog({
-    width: '100%',
-    height: '100%',
-    modal: true,
-    autoOpen: false,
-    dialogClass: 'credits_wrapper'
-});
-
-$(".div_kickstarter_dialog").dialog({
-    width: '100%',
-    height: '100%',
-    modal: true,
-    autoOpen: false,
-    dialogClass: 'credits_wrapper'
-});
-
 
 var CmdButtons = {};
 CmdButtons[loc("!LOC:OK")] = function () {

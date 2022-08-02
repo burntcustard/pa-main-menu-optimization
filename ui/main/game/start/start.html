@@ -21,13 +21,13 @@
     <script src="start.js" type="text/javascript" defer></script>
 
 </head>
-<body data-bind="css: { titans: api.content.usingTitans() }, click: hideSubMenus" >
+<body data-bind="click: hideSubMenus" >
 
     <div id="background"></div>
     <div id="content-wrapper">
         <div id="start_column">
                 <div class="main_bar">
-                    <div id="menu" style="display: none" data-bind="visible: true, css: { upgrade: showBuyTitans}">
+                    <div id="menu">
                         <div id="menu_cont">
                             <div id="user_info">
                                 <div id="user-details">
@@ -113,7 +113,7 @@
                                             <div class="nav_item nav_item nav_item_text btn_std_ix" data-bind="click: navToServerBrowser, click_sound: 'default', rollover_sound: 'default'">
                                                 <loc>Custom</loc>
                                             </div>
-                                            <div id="nav-ranked" class="nav_item nav_item nav_item_text btn_std_ix" data-bind="visible: showRanked, click: startMatchMaking, click_sound: 'default', rollover_sound: 'default', css: { nav_item_text_disabled: disableRanked }">
+                                            <div id="nav-ranked" class="nav_item nav_item nav_item_text btn_std_ix" data-bind="click: startMatchMaking, click_sound: 'default', rollover_sound: 'default', css: { nav_item_text_disabled: disableRanked }">
                                                 <loc>1v1 RANKED MATCH</loc>
                                             </div>
                                             <div id="nav-leaderboards" class="nav_item nav_item nav_item_text btn_std_ix" data-bind="click: navToLeaderBoard, click_sound: 'default', rollover_sound: 'default'">
@@ -130,7 +130,7 @@
                                     <div id="nav-player-guide" class="nav_item nav_item_text btn_std_ix" data-bind="click: navToGuide, click_sound: 'default', rollover_sound: 'default'">
                                         <loc>Player Guide</loc>
                                     </div>
-                                    <div id="nav-tutorial" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.startTutorialOrShowPopup, click_sound: 'default', rollover_sound: 'default', visible: api.content.usingTitans">
+                                    <div id="nav-tutorial" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.startTutorialOrShowPopup, click_sound: 'default', rollover_sound: 'default'">
                                         <loc>Tutorial</loc>
                                     </div>
                                     <div id="nav-guides" class="btn_std_ix nav_item nav_item_text" data-bind="click: $root.openOfficialGuides, click_sound: 'default', rollover_sound: 'default'">
@@ -165,6 +165,10 @@
                         <div id="copyright">
                             <noloc>Copyright © 2012-2021 <br/>Planetary Annihilation Inc. <br/>All rights reserved.</noloc>
                         </div>
+
+                        <div id="small-connecting" data-bind="visible: showConnecting">
+                            <img class="working std" src="coui://ui/main/shared/img/working.svg" data-bind="tooltip: '!LOC:Connecting to PA'" />
+                        </div>
                     </div>
                 </div>
         </div>
@@ -198,17 +202,6 @@
                                 <loc>Your system does not meet the requirements for offline play. Please sign in to play on PA servers, or in [strong]Settings[/strong], manually set local server to [strong]On[/strong].</loc>
                             </div>
                             <!-- /ko -->
-                        </div>
-                    </div>
-
-                    <div id="events" data-bind="foreach: activeEvents">
-                        <div class="message-container btn_std_ix" data-bind="click: $root.eventClicked, attr: { 'data-link': link }, click_sound: 'default', rollover_sound: 'default'">
-                            <img class="message-icon" data-bind="visible: icon, attr: { src: icon }"/>
-                            <div class="message-block">
-                                <div class="message-text" data-bind="text: text"> </div>
-                                <div class="message-status-block" data-bind="visible:status">
-                                    <div class="message-status-text" data-bind="text: status"></div> <div class="message-status-timer" data-bind="visible: timer, text: timer"></div></div><div class="external-link" data-bind="visible: link">&#xe164;</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -271,77 +264,6 @@
                     <button class="btn_continue_tutorial" data-bind="click: SaveGameUtility.loadMostRecentGame"><loc>Continue Tutorial</loc></button>
                     <button class="btn_restart_tutorial" data-bind="click: function () { $root.startTutorial(); }"><loc>Restart From Beginning</loc></button>
                     <div class="btn_dismiss_popup btn_std_ix" data-bind="click: function () { $root.showTutorialContinuePopup(false); }"><loc>Cancel</loc></div>
-                </div>
-            </div>
-            <div class="footer">
-            </div>
-        </div>
-    </div>
-
-    <div class="div_tutorial_popup" style="display: none" data-bind="visible: oneTimePopups.titans_gift_on_steam.display(), with: oneTimePopups.titans_gift_on_steam">
-        <div class="tutorial_dialog debut">
-            <div class="header">
-                <div class="msg"></div>
-                <div class="btn_win btn_win_close btn_header_close" data-bind="click: dismiss"></div>
-            </div>
-            <div class="image">
-                <img src="img/img_debut02.png" />
-                <div class="headline"><loc>They're here for you.</loc></div>
-            </div>
-            <div class="text">
-                <div class="headline"><loc>The TITANS have arrived.</loc></div>
-                <div class="tagline debut"><loc>As thanks for your continued support, you have been given the new TITANS expansion for free!</loc></div>
-                <div class="tagline debut"><loc>You'll find it waiting in your Steam library right next to Planetary Annihilation!</loc></div>
-                <div class="div_commit">
-                    <button class="btn_play_tutorial" type="submit" data-bind="click: $root.launchTitansAndExit"><loc>QUIT & INSTALL TITANS</loc></button>
-                    <button class="btn_play_tutorial" type="submit"  data-bind="click: dismiss"><loc>OKAY</loc></button>
-                </div>
-            </div>
-            <div class="footer">
-            </div>
-        </div>
-    </div>
-
-    <div class="div_tutorial_popup" style="display: none" data-bind="visible: showRedirectToNewAppid">
-        <div class="tutorial_dialog debut">
-            <div class="header">
-                <div class="msg"></div>
-                <div class="btn_win btn_win_close btn_header_close" data-bind="click: function() { showRedirectToNewAppid(false); }"></div>
-            </div>
-            <div class="image">
-                <img src="img/img_debut02.png" />
-                <div class="headline"><loc>They're here for you.</loc></div>
-            </div>
-            <div class="text">
-                <div class="headline"><loc>The TITANS have arrived.</loc></div>
-                <div class="tagline debut"><loc>Looks like you're running Classic PA from your Steam Library, instead of TITANS.</loc></div>
-                <div class="tagline debut"><loc>If you want to play Classic PA, it's recommended you run TITANS and simply change your Active Expansion in the gameplay settings.</loc></div>
-                <div class="div_commit">
-                    <button class="btn_play_tutorial" type="submit" data-bind="click: $root.launchTitansAndExit"><loc>QUIT & LAUNCH TITANS</loc></button>
-                    <button class="btn_play_tutorial" type="submit"  data-bind="click: function() { showRedirectToNewAppid(false); }"><loc>OKAY</loc></button>
-                </div>
-            </div>
-            <div class="footer">
-            </div>
-        </div>
-    </div>
-
-    <div class="div_tutorial_popup" style="display: none" data-bind="visible: oneTimePopups.titans_gift.display(), with: oneTimePopups.titans_gift">
-        <div class="tutorial_dialog debut">
-            <div class="header">
-                <div class="msg"></div>
-                <div class="btn_win btn_win_close btn_header_close" data-bind="click: dismiss"></div>
-            </div>
-            <div class="image">
-                <img src="img/img_debut02.png" />
-                <div class="headline"><loc>They're here for you.</loc></div>
-            </div>
-            <div class="text">
-                <div class="headline"><loc>The TITANS have arrived.</loc></div>
-                <div class="tagline debut"><loc>As thanks for your continued support, you have been given the new TITANS expansion for free!</loc></div>
-                <div class="tagline debut"><loc>Please enjoy all the new units, new worlds, and new ways to annihilate everything!</loc></div>
-                <div class="div_commit">
-                    <button class="btn_play_tutorial" type="submit"  data-bind="click: dismiss"><loc>OKAY</loc></button>
                 </div>
             </div>
             <div class="footer">
@@ -495,17 +417,6 @@
     </div>
 
     <!-- DIALOGS -->
-
-        <!-- SHOW CONNECTING -->
-        <div id="connecting" style="display: none" data-bind="visible: showConnecting">
-            <div class="wrapper">
-                <img class="working std" style="margin: 0px 8px 0px 0px;" src="coui://ui/main/shared/img/working.svg" />
-                <div id="msg_progress" class="msg_progress_text">
-                    <loc>Connecting to PA</loc>
-                </div>
-            </div>
-        </div>
-
         <!-- ERROR -->
         <div id="error" style="display: none" data-bind="visible: showError">
             <div class="primary_msg" style="margin: 0px 0px 10px 0px;">

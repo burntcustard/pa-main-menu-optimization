@@ -293,11 +293,6 @@ html, body {
     height: calc(100% - 70px);
 }
 
-#menu.upgrade
-{
-    height: calc(100% - 150px);
-}
-
 .external-link
 {
     font-family: "Glyphicons Halflings";
@@ -824,14 +819,12 @@ html, body {
     margin: 8px;
 }
 
-#connecting > .wrapper {
-    height: 100%;
-    width: 100%;
+#small-connecting {
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    overflow: hidden;
+    align-items: flex-end;
+    justify-content: flex-end;
+    flex-grow: 1;
+    padding: 8px;
 }
 
 /*----- LINK STEAM UI
