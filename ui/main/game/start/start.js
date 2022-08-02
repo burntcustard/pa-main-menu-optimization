@@ -1,22 +1,5 @@
 engine.call('game.debug.menuDocumentReady');
 
-// the check 'data_storage_model'
-if (!localStorage['data_storage_model'] || localStorage['data_storage_model'] != '2.0') {
-
-    if (localStorage['data_storage_model'] != '1.0')
-        localStorage.clear();
-    else
-        cleanupLegacyStorage();
-
-    localStorage['data_storage_model'] = '2.0';
-}
-if (!localStorage['planet_storage_model'] || localStorage['planet_storage_model'] != '1.0') {
-    //clear old format
-    localStorage.setItem('planets', encode([]));
-    delete localStorage.systems;
-    localStorage.setItem('planet_storage_model', '1.0');
-}
-
 function OneTimePopup(name, filter) {
     var self = this;
 
